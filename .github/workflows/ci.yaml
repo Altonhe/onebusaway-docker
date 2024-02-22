@@ -16,7 +16,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build bundler image
-        run: docker buildx build --load -t bundler-image:latest --env GTFS_URL=https://www.soundtransit.org/GTFS-rail/40_gtfs.zip ./bundler
+        run: docker buildx build --load -t bundler-image:latest ./bundler
 
       - name: Build oba image
         run: docker buildx build --load -t oba-image:latest ./oba
