@@ -2,7 +2,7 @@ version: "3"
 
 services:
   oba_bundler:
-    build: ./bundler
+    build: ./bundler:latest
     image: oba_bundler # For CI to use
     volumes:
       - ./bundle:/bundle
@@ -30,7 +30,7 @@ services:
     depends_on:
       - oba_database
     build: ./oba
-    image: oba_app # For CI to use
+    image: oba_app:latest # For CI to use
     environment:
       - JDBC_URL=jdbc:mysql://oba_database:3306/oba_database
       - JDBC_USER=oba_user
