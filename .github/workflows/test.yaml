@@ -2,10 +2,11 @@ name: Test
 
 on:
   push:
+    - 'main'
   pull_request:
 
 jobs:
-  test:
+  image:
     name: Test Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -14,12 +15,20 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+
       # Split the build into two steps to identify which step fails
       - name: Build bundler image
         run: docker buildx build --load -t bundler-image:latest ./bundler
 
       - name: Build oba image
         run: docker buildx build --load -t oba-image:latest ./oba
+
+  services:
+    name: Test Services
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Docker Compose up
         run: docker-compose up -d
