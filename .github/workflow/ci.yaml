@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+  test:
+    name: Test Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build bundler image
+        run: docker buildx build --load -t bundler-image:latest --env GTFS_URL=https://www.soundtransit.org/GTFS-rail/40_gtfs.zip ./bundler
+
+      - name: Build oba image
+        run: docker buildx build --load -t oba-image:latest ./oba
+
+      - name: Docker Compose up
+        run: docker-compose up -d
+
+      - name: Wait for services to be up
+        run: sleep 5
+
+      - name: Test the services
+        run: |
+          chmod +x ./bin/validate.sh
+          ./bin/validate.sh
+
+      - name: Docker Compose down
+        if: always()
+        run: docker-compose down
