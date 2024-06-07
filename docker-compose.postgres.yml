@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  oba_bundler:
+    build: ./bundler
+    volumes:
+      - ./bundle:/bundle
+    environment:
+      - GTFS_URL
+
+  oba_database:
+    image: postgres:13
+    container_name: oba_database
+    environment:
+      POSTGRES_DB: oba_database
+      POSTGRES_USER: oba_user
+      POSTGRES_PASSWORD: oba_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    restart: always
+
+  oba_app:
+    container_name: oba_app
+    depends_on:
+      - oba_database
+    build:
+      context: ./oba
+    environment:
+      - JDBC_DRIVER=org.postgresql.Driver
+      - JDBC_URL=jdbc:postgresql://oba_database:5432/oba_database
+      - JDBC_USER=oba_user
+      - JDBC_PASSWORD=oba_password
+      - TEST_API_KEY=test # For test only, remove in production
+      - TZ=America/New_York
+
+    volumes:
+      # Share the host's `bundle` directory
+      # with the filesystem of the OBA service.
+      - ./bundle:/bundle
+    ports:
+      # Access the webapp on your host machine at a path like
+      # http://localhost:8080/onebusaway-api-webapp/api/where/agency/${YOUR_AGENCY}.json?key=TEST
+      - "8080:8080"
+    # restart: always
+
+volumes:
+  postgres-data:
